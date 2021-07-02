@@ -2,34 +2,34 @@ package core
 
 import (
 	"sync"
+
+	"github.com/Dreamacro/clash/common/pool"
 )
 
-var pool *sync.Pool
+var pl *sync.Pool
 
 const BufSize = 2 * 1024
 
 func SetBufferPool(p *sync.Pool) {
-	pool = p
+	pl = p
 }
 
 func NewBytes(size int) []byte {
 	if size <= BufSize {
-		return pool.Get().([]byte)
+		return pool.Get(BufSize)
 	} else {
-		return make([]byte, size)
+		return pool.Get(size)
 	}
 }
 
 func FreeBytes(b []byte) {
-	if len(b) >= BufSize {
-		pool.Put(b)
-	}
+	pool.Put(b)
 }
 
-func init() {
-	SetBufferPool(&sync.Pool{
-		New: func() interface{} {
-			return make([]byte, BufSize)
-		},
-	})
-}
+// func init() {
+// 	SetBufferPool(&sync.Pool{
+// 		New: func() interface{} {
+// 			return make([]byte, BufSize)
+// 		},
+// 	})
+// }
